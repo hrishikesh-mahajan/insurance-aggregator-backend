@@ -25,5 +25,5 @@ python module.py
 ## Functionalities
 
 - [x] Extract GPS coordinates from the uploaded images
-- [ ] Fetch location details from the GPS coordinates
+- [x] Fetch location details from the GPS coordinates
 - [ ] Display the location details on the map
