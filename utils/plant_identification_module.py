@@ -9,7 +9,7 @@ from PIL import Image
 
 
 class PlantIdentificationService:
-    def __init__(self, api_key: str = None):
+    def __init__(self, api_key: str = ""):
         """
         Initialize the Plant Identification Service
 
