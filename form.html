@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Form Submission</title>
+  <!-- Include Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <!-- ...existing code... -->
+</head>
+
+<body>
+  <!-- ...existing code... -->
+  <div class="container">
+    <h1>Submit Form</h1>
+    <form action="http://localhost:5000/submit-form" method="POST" enctype="multipart/form-data">
+      <!-- Text input -->
+      <div class="form-group">
+        <label for="textInput">Text Input</label>
+        <input type="text" class="form-control" id="textInput" name="text_input" placeholder="Enter text">
+      </div>
+
+      <!-- Password input -->
+      <div class="form-group">
+        <label for="passwordInput">Password Input</label>
+        <input type="password" class="form-control" id="passwordInput" name="password_input"
+          placeholder="Enter password">
+      </div>
+
+      <!-- Email input -->
+      <div class="form-group">
+        <label for="emailInput">Email Input</label>
+        <input type="email" class="form-control" id="emailInput" name="email_input" placeholder="Enter email">
+      </div>
+
+      <!-- Number input -->
+      <div class="form-group">
+        <label for="numberInput">Number Input</label>
+        <input type="number" class="form-control" id="numberInput" name="number_input" placeholder="Enter number">
+      </div>
+
+      <!-- Date input -->
+      <div class="form-group">
+        <label for="dateInput">Date Input</label>
+        <input type="date" class="form-control" id="dateInput" name="date_input">
+      </div>
+
+      <!-- File input -->
+      <div class="form-group">
+        <label for="fileInput">File Input</label>
+        <input type="file" class="form-control-file" id="fileInput" name="file_input">
+      </div>
+
+      <!-- Multiple file input -->
+      <div class="form-group">
+        <label for="multipleFileInput">Multiple Files</label>
+        <input type="file" class="form-control-file" id="multipleFileInput" name="multiple_files" multiple>
+      </div>
+
+      <!-- Checkbox -->
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="checkboxInput" name="checkbox_input">
+        <label class="form-check-label" for="checkboxInput">Check me out</label>
+      </div>
+
+      <!-- Radio buttons -->
+      <div class="form-group">
+        <label>Radio Options</label><br>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="radio_input" id="radioOption1" value="option1">
+          <label class="form-check-label" for="radioOption1">Option 1</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name="radio_input" id="radioOption2" value="option2">
+          <label class="form-check-label" for="radioOption2">Option 2</label>
+        </div>
+      </div>
+
+      <!-- Select -->
+      <div class="form-group">
+        <label for="selectInput">Select</label>
+        <select class="form-control" id="selectInput" name="select_input">
+          <option value="value1">Value 1</option>
+          <option value="value2">Value 2</option>
+          <option value="value3">Value 3</option>
+        </select>
+      </div>
+
+      <!-- Textarea -->
+      <div class="form-group">
+        <label for="textareaInput">Textarea</label>
+        <textarea class="form-control" id="textareaInput" name="textarea_input" rows="3"></textarea>
+      </div>
+
+      <!-- Color input -->
+      <div class="form-group">
+        <label for="colorInput">Color Input</label>
+        <input type="color" class="form-control" id="colorInput" name="color_input">
+      </div>
+
+      <!-- Range input -->
+      <div class="form-group">
+        <label for="rangeInput">Range Input</label>
+        <input type="range" class="form-control" id="rangeInput" name="range_input" min="0" max="100">
+      </div>
+
+      <!-- Submit button -->
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+  <!-- ...existing code... -->
+  <!-- Include Bootstrap JS and dependencies -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+
+</html>
