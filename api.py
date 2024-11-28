@@ -78,6 +78,19 @@ def get_claims():
     return make_response({"claims": claims}, 200)
 
 
+@app.route("/process-claim/<string:claimid>", methods=["POST"])
+def process_claim_by_id(claimid: str):
+    import json
+
+    from process_claim import process_claim
+
+    if request.json is None:
+        return make_response("Request body must be a JSON object", 400)
+    claim_id = request.json.get("claimNumber", "") or claimid
+    result, status_code = process_claim(claim_id)
+
+    return make_response(json.dumps(result), status_code)
+
+
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
     app.run(port=5000, debug=True)
