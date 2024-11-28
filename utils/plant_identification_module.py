@@ -19,18 +19,20 @@ class PlantIdentificationService:
         load_dotenv()
 
         # Use provided API key or get from environment
-        self.api_key = api_key or os.getenv('GOOGLE_GEMINI_API_KEY')
+        self.api_key = api_key or os.getenv("GOOGLE_GEMINI_API_KEY")
 
         if not self.api_key:
-            raise ValueError("No API key provided. Set GOOGLE_GEMINI_API_KEY in .env or pass directly.")
+            raise ValueError(
+                "No API key provided. Set GOOGLE_GEMINI_API_KEY in .env or pass directly."
+            )
 
         # Configure Gemini API
         genai.configure(api_key=self.api_key)
 
         # Initialize the model
-        self.model = genai.GenerativeModel('gemini-pro-vision')
+        self.model = genai.GenerativeModel("gemini-1.5-flash")
 
-    def _preprocess_image(self, image_path: str) -> bytes:
+    def _preprocess_image(self, image_path: str):
         """
         Preprocess and convert image to base64
 
@@ -39,13 +41,15 @@ class PlantIdentificationService:
         """
         try:
             with Image.open(image_path) as img:
+                return img
+
                 # Resize large images to reduce API call size
                 img.thumbnail((800, 800))
 
                 # Convert image to bytes
                 byte_arr = io.BytesIO()
-                img.save(byte_arr, format='JPEG')
-                return base64.b64encode(byte_arr.getvalue()).decode('utf-8')
+                img.save(byte_arr, format="JPEG")
+                return base64.b64encode(byte_arr.getvalue()).decode("utf-8")
         except Exception as e:
             raise ValueError(f"Image preprocessing error: {str(e)}")
 
@@ -58,7 +62,7 @@ class PlantIdentificationService:
         """
         try:
             # Preprocess image
-            image_base64 = self._preprocess_image(image_path)
+            image = self._preprocess_image(image_path)
 
             # Prepare prompt
             prompt = """
@@ -73,20 +77,20 @@ class PlantIdentificationService:
             """
 
             # Generate response
-            response = self.model.generate_content([prompt, image_base64])
+            response = self.model.generate_content([prompt, image])
 
             # Process and return results
             return {
                 "success": True,
                 "identification": response.text,
-                "raw_response": response
+                "raw_response": response,
             }
 
         except Exception as e:
             return {
                 "success": False,
                 "error": str(e),
-                "details": "Crop identification failed"
+                "details": "Crop identification failed",
             }
 
     def verify_crop_match(self, image_path: str, expected_crop: str) -> Dict[str, Any]:
@@ -101,15 +105,15 @@ class PlantIdentificationService:
             # Identify crop
             identification_result = self.identify_crop(image_path)
 
-            if not identification_result['success']:
+            if not identification_result["success"]:
                 return {
                     "match": False,
                     "reason": "Unable to identify crop",
-                    "details": identification_result.get('error', 'Unknown error')
+                    "details": identification_result.get("error", "Unknown error"),
                 }
 
             # Compare identified crop with expected crop
-            identified_crop = identification_result['identification']
+            identified_crop = identification_result["identification"]
 
             # Perform similarity check (can be enhanced with NLP matching)
             match = expected_crop.lower() in identified_crop.lower()
@@ -118,35 +122,38 @@ class PlantIdentificationService:
                 "match": match,
                 "identified_crop": identified_crop,
                 "expected_crop": expected_crop,
-                "full_analysis": identification_result
+                "full_analysis": identification_result,
             }
 
         except Exception as e:
             return {
                 "match": False,
                 "error": str(e),
-                "details": "Verification process failed"
+                "details": "Verification process failed",
             }
+
 
 # Example Usage
 def main():
     # Initialize the service
     plant_service = PlantIdentificationService()
 
-    # Example image paths (replace with actual paths)
-    corn_image = '/path/to/corn/image.jpg'
-    wheat_image = '/path/to/wheat/image.jpg'
+    # Example image paths
+    crop_image = "sample.jpg"
 
     # Identify crop
-    corn_result = plant_service.identify_crop(corn_image)
-    print("Corn Identification:", corn_result)
+    crop_result = plant_service.identify_crop(crop_image)
+    print("Crop Identification:", crop_result)
 
     # Verify crop match
     verification_result = plant_service.verify_crop_match(
-        corn_image,
-        expected_crop='Corn'
+        crop_image, expected_crop="Corn"
     )
     print("Verification Result:", verification_result)
+
+    with open("crop_result.md", "w") as f:
+        f.write(crop_result.get("raw_response", {}).text)
+
 
 if __name__ == "__main__":
     main()
