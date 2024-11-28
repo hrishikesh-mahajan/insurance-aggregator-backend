@@ -1,7 +1,8 @@
-import requests
-from datetime import datetime, timedelta
 import json
 import logging
+from datetime import datetime, timedelta
+
+import requests
 
 
 class IndianDisasterVerificationService:
@@ -79,7 +80,6 @@ class IndianDisasterVerificationService:
             response = requests.get(
                 self.apis["nasa_eonet"]["url"], params=self.apis["nasa_eonet"]["params"]
             )
-            print(response.text)
             if response.status_code == 200:
                 events = response.json().get("events", [])
 
@@ -96,6 +96,12 @@ class IndianDisasterVerificationService:
                                 ),
                                 "title": event.get("title", "Unnamed Event"),
                                 "date": event.get("geometry", [{}])[0].get("date"),
+                                "coordinates": event.get("geometry", [{}])[0].get(
+                                    "coordinates"
+                                ),
+                                "link": event.get("sources", [{}])[0]
+                                .get("url")
+                                .replace("amp;", ""),
                             }
                         )
         except Exception as e:
@@ -145,7 +151,20 @@ class IndianDisasterVerificationService:
         Check if an event is relevant to the specified location and date
         """
         # Implement haversine formula for distance calculation
-        from math import radians, sin, cos, sqrt, atan2
+        from math import atan2, cos, radians, sin, sqrt
+
+        print(
+            "Event: ",
+            event,
+            "Latitude: ",
+            latitude,
+            "Longitude: ",
+            longitude,
+            "Target Date: ",
+            target_date,
+            "Radius: ",
+            radius_km,
+        )
 
         def haversine_distance(lat1, lon1, lat2, lon2):
             R = 6371  # Earth radius in kilometers
@@ -197,10 +216,16 @@ class IndianDisasterVerificationService:
             event_datetime = datetime.fromisoformat(event_date.replace("Z", "+00:00"))
             target_datetime = datetime.fromisoformat(target_date)
 
+            aware_target_datetime = target_datetime.replace(
+                tzinfo=event_datetime.tzinfo
+            )  # Ensure same timezone
+            target_datetime = aware_target_datetime
+
             # Check if within specified number of days
             date_difference = abs((event_datetime - target_datetime).days)
             return date_difference <= days_threshold
-        except Exception:
+        except Exception as e:
+            print("Error in date comparison: ", e)
             return False
 
     def generate_insurance_report(self, verification_result):
@@ -234,6 +259,12 @@ if __name__ == "__main__":
         "date": datetime.now().strftime("%Y-%m-%d"),
     }
 
+    farm_location = {
+        "latitude": 25.78,  # Coordinates near Madhya Pradesh
+        "longitude": 76.62,
+        "date": "2024-11-07",
+    }
+
     # Verify disaster for the location
     verification_result = disaster_service.verify_location_disaster(
         farm_location["latitude"], farm_location["longitude"], farm_location["date"]
@@ -246,3 +277,10 @@ if __name__ == "__main__":
     print(json.dumps(verification_result, indent=2))
     print("\nInsurance Claim Report:")
     print(json.dumps(insurance_report, indent=2))
+    print(json.dumps(insurance_report, indent=2))
+
+    with open("disaster_verification.json", "w") as f:
+        json.dump(verification_result, f, indent=2)
+
+    with open("insurance_report.json", "w") as f:
+        json.dump(insurance_report, f, indent=2)
