@@ -2,6 +2,7 @@ import json
 
 from utils.image_exif_parser import extract_exif_data
 from utils.indian_disaster_verification import IndianDisasterVerificationService
+from utils.plant_identification_module import PlantIdentificationService
 from utils.reverse_location_lookup import get_google_maps_link, get_location_name
 
 if __name__ == "__main__":
@@ -38,6 +39,17 @@ if __name__ == "__main__":
 
         with open("insurance_report.json", "w") as f:
             json.dump(insurance_report, f, indent=2)
+
+        # Verify crop plantation
+        plant_service = PlantIdentificationService()
+        crop_result = plant_service.identify_crop(image_path)
+        print(f"Crop Identification: {crop_result}")
+        verification_result = plant_service.verify_crop_match(
+            image_path, expected_crop="Grapes"
+        )
+        print(f"Verification Result: {verification_result}")
+        with open("crop_result.md", "w") as f:
+            f.write(crop_result.get("raw_response", {}).text)
 
     else:
         print("No GPS info found in the image.")
