@@ -8,7 +8,7 @@ if __name__ == "__main__":
     print(f"Timestamp: {timestamp}")
     if gps_info:
         lat, lon = gps_info
-        location_name = get_location_name(lat, lon)
+        location_name = get_location_name(lat, lon, complete=True)
         print(f"Location: {location_name}")
         print(f"Google Maps link: {get_google_maps_link(lat, lon)}")
     else:

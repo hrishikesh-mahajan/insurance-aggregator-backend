@@ -1,6 +1,7 @@
 import json
 import logging
 from datetime import datetime, timedelta
+from pprint import pprint
 
 import requests
 
@@ -22,7 +23,11 @@ class IndianDisasterVerificationService:
             },
             "reliefweb": {
                 "url": "https://api.reliefweb.int/v1/disasters",
-                "params": {"filter[country]": "IN", "limit": 50},  # India
+                "params": {
+                    "query[value]": "country.id:119",
+                    "limit": 3,
+                    "preset": "latest",
+                },  # India
             },
         }
 
@@ -83,7 +88,10 @@ class IndianDisasterVerificationService:
             if response.status_code == 200:
                 events = response.json().get("events", [])
 
+                nasa_eonet_disasters = []
+
                 for event in events:
+                    nasa_eonet_disasters.append(event)
                     # Check if event is close to location and date
                     if self._is_event_relevant(
                         event, latitude, longitude, date, radius_km
@@ -104,6 +112,9 @@ class IndianDisasterVerificationService:
                                 .replace("amp;", ""),
                             }
                         )
+
+                with open("nasa_eonet_disasters.json", "w") as f:
+                    json.dump(nasa_eonet_disasters, f, indent=2)
         except Exception as e:
             self.logger.error(f"NASA EONET API error: {e}")
 
@@ -121,8 +132,14 @@ class IndianDisasterVerificationService:
 
             if response.status_code == 200:
                 disaster_data = response.json().get("data", [])
+                relief_disasters = []
 
                 for disaster in disaster_data:
+                    disaster_response = requests.get(disaster.get("href"))
+                    disaster = disaster_response.json().get("data", [])[0]
+
+                    relief_disasters.append(disaster)
+
                     # Check if disaster is close to location and date
                     if self._is_reliefweb_event_relevant(
                         disaster, latitude, longitude, date, radius_km
@@ -134,16 +151,23 @@ class IndianDisasterVerificationService:
                                 .get("type", [{}])[0]
                                 .get("name", "Unknown"),
                                 "title": disaster.get("fields", {}).get(
-                                    "title", "Unnamed Event"
+                                    "name", "Unnamed Event"
                                 ),
                                 "date": disaster.get("fields", {})
                                 .get("date", {})
                                 .get("created"),
+                                "location": disaster.get("fields", {})
+                                .get("country", {})[0]
+                                .get("location"),
+                                "link": disaster.get("fields", {}).get("url_alias", ""),
                             }
                         )
+
+                with open("reliefweb_disasters.json", "w") as f:
+                    json.dump(relief_disasters, f, indent=2)
+
         except Exception as e:
             self.logger.error(f"ReliefWeb API error: {e}")
-
         return disasters
 
     def _is_event_relevant(self, event, latitude, longitude, target_date, radius_km):
@@ -153,18 +177,11 @@ class IndianDisasterVerificationService:
         # Implement haversine formula for distance calculation
         from math import atan2, cos, radians, sin, sqrt
 
-        print(
-            "Event: ",
-            event,
-            "Latitude: ",
-            latitude,
-            "Longitude: ",
-            longitude,
-            "Target Date: ",
-            target_date,
-            "Radius: ",
-            radius_km,
-        )
+        # print("Event: ", json.dumps(event, indent=2))
+        # print("Latitude: ", latitude)
+        # print("Longitude: ", longitude)
+        # print("Target Date: ", target_date)
+        # print("Radius: ", radius_km)
 
         def haversine_distance(lat1, lon1, lat2, lon2):
             R = 6371  # Earth radius in kilometers
@@ -204,9 +221,38 @@ class IndianDisasterVerificationService:
         """
         Check relevance for ReliefWeb events
         """
-        # Implementation similar to _is_event_relevant, but adapted for ReliefWeb's data structure
-        # This is a simplified placeholder
-        return True
+        from math import atan2, cos, radians, sin, sqrt
+
+        def haversine_distance(lat1, lon1, lat2, lon2):
+            R = 6371  # Earth radius in kilometers
+            lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+            dlat = lat2 - lat1
+            dlon = lon2 - lon1
+            a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+            c = 2 * atan2(sqrt(a), sqrt(1 - a))
+            distance = R * c
+            return distance
+
+        # Check disaster location (coordinates)
+        if disaster.get("fields", {}).get("country", [{}])[0].get("location"):
+            disaster_coords = disaster["fields"]["country"][0]["location"]
+            disaster_lat = disaster_coords.get("lat")
+            disaster_lon = disaster_coords.get("lon")
+
+            # Calculate distance
+            distance = haversine_distance(
+                latitude, longitude, disaster_lat, disaster_lon
+            )
+
+            # Check if within radius and date is close
+            disaster_date = disaster.get("fields", {}).get("date", {}).get("created")
+            # print("Disaster Date: ", disaster_date)
+            if distance <= radius_km and self._is_date_close(
+                disaster_date, target_date
+            ):
+                return True
+
+        return False
 
     def _is_date_close(self, event_date, target_date, days_threshold=30):
         """
@@ -276,7 +322,6 @@ if __name__ == "__main__":
     print("Disaster Verification Report:")
     print(json.dumps(verification_result, indent=2))
     print("\nInsurance Claim Report:")
-    print(json.dumps(insurance_report, indent=2))
     print(json.dumps(insurance_report, indent=2))
 
     with open("disaster_verification.json", "w") as f:
