@@ -35,7 +35,7 @@ class InsuranceClaimProcessor:
         load_dotenv()
 
         # Configure Gemini API
-        genai.configure(api_key=gemini_api_key or os.getenv("GOOGLE_GEMINI_API_KEY"))
+        genai.configure(api_key=os.getenv("GOOGLE_GEMINI_API_KEY"))
         self.gemini_pro_model = genai.GenerativeModel("gemini-pro")
         self.gemini_vision_model = genai.GenerativeModel("gemini-1.5-flash")
 
@@ -241,12 +241,11 @@ class InsuranceClaimProcessor:
 
         except Exception as e:
             self.logger.error(f"Fraud detection error: {e}")
-            return {
-                "fraud_analysis": "Unable to complete comprehensive analysis",
-                "risk_level": "Unknown",
-                "risk_score": 0.5,
-            }
-        return {}
+        return {
+            "fraud_analysis": "Unable to complete comprehensive analysis",
+            "risk_level": "Unknown",
+            "risk_score": 0.5,
+        }
 
     def generate_claim_report(self, document_paths: List[str]) -> Dict[str, Any]:
         """
