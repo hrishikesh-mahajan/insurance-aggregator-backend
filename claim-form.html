@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Form Submission</title>
+  <!-- Include Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <!-- ...existing code... -->
+</head>
+
+<body>
+  <!-- ...existing code... -->
+  <div class="container">
+    <h1>Submit Form</h1>
+    <form action="http://localhost:5000/submit-form" method="POST" enctype="multipart/form-data">
+      <!-- Claim Type -->
+      <div class="form-group">
+        <label for="claimType">Claim Type</label>
+        <input type="text" class="form-control" id="claimType" name="claimType" placeholder="Enter claim type">
+      </div>
+
+      <!-- Policy Number -->
+      <div class="form-group">
+        <label for="policyNumber">Policy Number</label>
+        <input type="text" class="form-control" id="policyNumber" name="policyNumber" placeholder="Enter policy number">
+      </div>
+
+      <!-- Policy Holder Name -->
+      <div class="form-group">
+        <label for="policyHolderName">Policy Holder Name</label>
+        <input type="text" class="form-control" id="policyHolderName" name="policyHolderName"
+         placeholder="Enter your name">
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" class="form-control" id="email" name="email" placeholder="Enter email">
+      </div>
+
+      <!-- Diagnosis -->
+      <div class="form-group">
+        <label for="diagnosis">Diagnosis</label>
+        <input type="text" class="form-control" id="diagnosis" name="diagnosis" placeholder="Enter diagnosis">
+      </div>
+
+      <!-- Location -->
+      <div class="form-group">
+        <label for="location">Location</label>
+        <input type="text" class="form-control" id="location" name="location" placeholder="Enter location">
+      </div>
+
+      <!-- Receipt Image -->
+      <div class="form-group">
+        <label for="receiptImage">Receipt Image</label>
+        <input type="file" class="form-control-file" id="receiptImage" name="receiptImage">
+      </div>
+
+      <!-- Before Incident Images -->
+      <div class="form-group">
+        <label for="beforeIncidentImages">Before Incident Images</label>
+        <input type="file" class="form-control-file" id="beforeIncidentImages" name="beforeIncidentImages" multiple>
+      </div>
+
+      <!-- After Incident Images -->
+      <div class="form-group">
+        <label for="afterIncidentImages">After Incident Images</label>
+        <input type="file" class="form-control-file" id="afterIncidentImages" name="afterIncidentImages" multiple>
+      </div>
+
+      <!-- Claim Documents -->
+      <div class="form-group">
+        <label for="claimDocuments">Claim Documents</label>
+        <input type="file" class="form-control-file" id="claimDocuments" name="claimDocuments">
+      </div>
+
+      <!-- Submit button -->
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+  <!-- ...existing code... -->
+  <!-- Include Bootstrap JS and dependencies -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+
+</html>
