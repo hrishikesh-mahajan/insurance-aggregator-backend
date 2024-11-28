@@ -59,6 +59,25 @@ def submit_form():
     return make_response("Form submitted successfully", 200)
 
 
+@app.route("/get-claims", methods=["GET"])
+def get_claims():
+    client = MongoClient(os.getenv("MONGO_DB_URI"))
+    db = client[os.getenv("MONGO_DB_NAME", "")]
+    collection = db[os.getenv("MONGO_DB_COLLECTION", "")]
+
+    claims = []
+    for document in collection.find({}):
+        document.pop("_id", None)
+        document.pop("receiptImage", None)
+        document.pop("claimDocuments", None)
+        document.pop("beforeIncidentImages", None)
+        document.pop("afterIncidentImages", None)
+        print(document)
+        claims.append(document)
+
+    return make_response({"claims": claims}, 200)
+
+
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
     app.run(port=5000, debug=True)
