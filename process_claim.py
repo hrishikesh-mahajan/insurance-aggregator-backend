@@ -23,7 +23,7 @@ def process_claim(claim_id: str):
     if not image_blob:
         return "Image not found in the claim data", 400
 
-    image_path = f"temp_image_{claim_id}.jpg"
+    image_path = ".\\inputs\\" + f"temp_image_{claim_id}.jpg"
     with open(image_path, "wb") as f:
         f.write(image_blob)
 
