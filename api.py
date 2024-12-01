@@ -1,9 +1,12 @@
+import json
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, make_response, request
+from flask import Flask, jsonify, make_response, request
 from flask_cors import CORS
 from pymongo import MongoClient
+
+from process_claim import process_claim
 
 app = Flask(__name__)
 CORS(app)
@@ -75,21 +78,18 @@ def get_claims():
         print(document)
         claims.append(document)
 
-    return make_response({"claims": claims}, 200)
+    return jsonify(claims), 200
 
 
 @app.route("/process-claim/<string:claimid>", methods=["POST"])
 def process_claim_by_id(claimid: str):
-    import json
-
-    from process_claim import process_claim
 
     if request.json is None:
         return make_response("Request body must be a JSON object", 400)
     claim_id = request.json.get("claimNumber", "") or claimid
     result, status_code = process_claim(claim_id)
 
-    return make_response(json.dumps(result), status_code)
+    return jsonify(result), status_code
 
 
 if __name__ == "__main__":

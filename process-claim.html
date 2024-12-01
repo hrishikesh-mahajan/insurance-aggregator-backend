@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- ...existing code... -->
+  <title>Process Claim</title>
+  <!-- Add Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+  <!-- ...existing code... -->
+</head>
+
+<body>
+  <div class="container mt-5">
+    <h2 class="mb-4">Process Claim</h2>
+    <div class="form-group">
+      <label for="claimDropdown">Select a Claim</label>
+      <select id="claimDropdown" class="form-control">
+        <option value="">Select a claim</option>
+        <!-- Options will be populated here -->
+      </select>
+    </div>
+    <button id="processButton" class="btn btn-primary">Process Claim</button>
+
+    <!-- Claim Details Table -->
+    <table id="claimDetailsTable" class="table table-striped mt-4" style="display: none;">
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Claim details will be populated here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    let claimsData = [];  // Store claims data
+    // Fetch claims and populate the dropdown
+    fetch("http://localhost:5000/get-claims")
+      .then((response) => response.json())
+      .then((claims) => {
+        claimsData = claims;
+        const dropdown = document.getElementById("claimDropdown");
+        claims.forEach((claim) => {
+          const option = document.createElement("option");
+          option.value = claim.claimNumber;
+          option.text = claim.claimNumber;
+          dropdown.add(option);
+        });
+      });
+
+    // Handle claim selection to display details
+    document.getElementById("claimDropdown").addEventListener("change", () => {
+      const claimNumber = document.getElementById("claimDropdown").value;
+      const claim = claimsData.find(c => c.claimNumber === claimNumber);
+      const table = document.getElementById("claimDetailsTable");
+      const tbody = table.querySelector("tbody");
+      tbody.innerHTML = "";  // Clear previous details
+
+      if (claim) {
+        Object.keys(claim).forEach(key => {
+          const row = document.createElement("tr");
+          const propertyCell = document.createElement("td");
+          propertyCell.textContent = key;
+          const valueCell = document.createElement("td");
+          valueCell.textContent = claim[key];
+          row.appendChild(propertyCell);
+          row.appendChild(valueCell);
+          tbody.appendChild(row);
+        });
+        table.style.display = "table";
+      } else {
+        table.style.display = "none";  // Hide table if no claim is selected
+      }
+    });
+
+    // Handle the process claim button click
+    document.getElementById("processButton").addEventListener("click", () => {
+      const claimNumber = document.getElementById("claimDropdown").value;
+      if (!claimNumber) {
+        alert("Please select a claim.");
+        return;
+      }
+
+      fetch(`http://localhost:5000/process-claim/${claimNumber}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ claimNumber }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          alert("Claim processed successfully.");
+          console.log(data);
+        })
+        .catch((error) => {
+          console.error("Error processing claim:", error);
+        });
+    });
+  </script>
+  <!-- Add Bootstrap JS and dependencies -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
