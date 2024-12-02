@@ -69,15 +69,55 @@ def get_claims():
 
     claims = []
     for document in collection.find({}):
-        document.pop("_id", None)
-        document.pop("receiptImage", None)
-        document.pop("claimDocuments", None)
-        document.pop("beforeIncidentImages", None)
-        document.pop("afterIncidentImages", None)
-        print(document)
+        document["_id"] = str(document["_id"])  # Convert ObjectId to string
+        claim_number = document.get("claimNumber", "")
+        # Generate URLs for file fields
+        for field in [
+            "receiptImage",
+            "claimDocuments",
+            "beforeIncidentImages",
+            "afterIncidentImages",
+        ]:
+            server = r"http://localhost:5000"
+            if field in document:
+                if isinstance(document[field], list):
+                    # For multiple files
+                    document[field] = [
+                        f"{server}/get-file/{claim_number}/{field}/{i}"
+                        for i in range(len(document[field]))
+                    ]
+                else:
+                    # For single file
+                    document[field] = f"{server}/get-file/{claim_number}/{field}"
         claims.append(document)
 
     return jsonify(claims), 200
+
+
+@app.route("/get-file/<string:claimNumber>/<string:fieldName>", methods=["GET"])
+@app.route(
+    "/get-file/<string:claimNumber>/<string:fieldName>/<int:index>", methods=["GET"]
+)
+def get_file(claimNumber, fieldName, index=None):
+    client = MongoClient(os.getenv("MONGO_DB_URI"))
+    db = client[os.getenv("MONGO_DB_NAME", "")]
+    collection = db[os.getenv("MONGO_DB_COLLECTION", "")]
+
+    document = collection.find_one({"claimNumber": claimNumber})
+    if not document or fieldName not in document:
+        return make_response("File not found", 404)
+
+    file_data = document[fieldName]
+    if isinstance(file_data, list):
+        if index is not None and 0 <= index < len(file_data):
+            file_data = file_data[index]
+        else:
+            return make_response("File index out of range", 404)
+
+    response = make_response(file_data)
+    # Set appropriate content type based on fieldName or file content
+    response.headers.set("Content-Type", "application/octet-stream")
+    return response
 
 
 @app.route("/process-claim/<string:claimid>", methods=["POST"])

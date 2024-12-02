@@ -65,7 +65,26 @@
           const propertyCell = document.createElement("td");
           propertyCell.textContent = key;
           const valueCell = document.createElement("td");
-          valueCell.textContent = claim[key];
+
+          if (["receiptImage", "claimDocuments"].includes(key) && claim[key]) {
+            // For single file, display as link
+            const link = document.createElement("a");
+            link.href = claim[key];
+            link.textContent = "View File";
+            link.target = "_blank";
+            valueCell.appendChild(link);
+          } else if (["beforeIncidentImages", "afterIncidentImages"].includes(key) && Array.isArray(claim[key])) {
+            // For multiple files, display as images
+            claim[key].forEach(url => {
+              const img = document.createElement("img");
+              img.src = url;
+              img.style.width = "100px";
+              img.style.marginRight = "10px";
+              valueCell.appendChild(img);
+            });
+          } else {
+            valueCell.textContent = claim[key];
+          }
           row.appendChild(propertyCell);
           row.appendChild(valueCell);
           tbody.appendChild(row);
