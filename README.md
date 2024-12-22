@@ -16,10 +16,16 @@ git clone https://github.com/hrishikesh-mahajan/insurance-aggregator-backend.git
 pip install -r requirements.txt
 ```
 
-1. Run modules from the utils directory
+3. Run modules from the utils directory
 ```bash
 cd utils
 python module.py
+```
+
+4. Run the API server
+```bash
+cd ..
+python api.py
 ```
 
 ## Functionalities
